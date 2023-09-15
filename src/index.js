@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import Label from './Label';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -10,7 +11,17 @@ root.render(
     <div
     style={{
       width: '100vw',
-      height: '100vh',
+      height: '20vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <Label />
+    </div>
+    <div
+    style={{
+      width: '100vw',
+      height: '80vh',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',

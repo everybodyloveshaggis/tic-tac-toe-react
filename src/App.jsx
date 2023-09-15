@@ -60,8 +60,10 @@ const checkForWinner = (board) => {
   }
 }
 
+
+
 function App() {
-  const [board, setBoard] = useState(generateBoard(3))
+  const [board, setBoard] = useState(generateBoard(6))
   const [currPlayer, setCurrPlayer] = useState('x')
   const handleClick = (row,col) => {
     board[row][col] =currPlayer
@@ -72,6 +74,7 @@ function App() {
     setCurrPlayer(currPlayer ==='x' ? 'y' : 'x')
   }
   return (
+    <>
     <div>
       {board.map((row, r) => {
         return (
@@ -104,6 +107,7 @@ function App() {
         )
       })}
     </div>
+    </>
   )
 }
 
