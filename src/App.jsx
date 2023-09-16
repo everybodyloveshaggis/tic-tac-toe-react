@@ -1,11 +1,11 @@
 import { useState } from "react";
 
 let isComplete = false;
-let size = [9]
+let size = [2,3,4,5,6,7,8,9]
+let boardSize =3
 
-function refreshPage() {
-  window.location.reload(false);
-}
+// function refreshPage() {
+//   window.location.reload(false);
 
 const generateBoard = (size) => {
   const newBoard = [];
@@ -67,6 +67,7 @@ const checkForWinner = (board) => {
 };
 
 function App() {
+  const winnerMessage = " is the winner 🎉"
   const [board, setBoard] = useState(generateBoard(3));
   const [currPlayer, setCurrPlayer] = useState("x");
   const [message, setMessage] = useState("x");
@@ -82,9 +83,11 @@ function App() {
         if (checkForWinner(board)) {
           isComplete = true;
           console.log("User " + currPlayer + " wins!");
+          setMessage(currPlayer + winnerMessage)
+        }else{
+          setMessage(currPlayer === "x" ? "y" : "x");
+          setCurrPlayer(currPlayer === "x" ? "y" : "x");
         }
-        setCurrPlayer(currPlayer === "x" ? "y" : "x");
-        setMessage(currPlayer === "x" ? "y" : "x");
       }
     }
   };
@@ -117,11 +120,16 @@ function App() {
               {
                 size.map((each, index) => 
                 {
-                  return (<option value={index}>{each}</option>)
+                  return (
+                  <option 
+                    value={index}
+                    >{each}
+                    </option>
+                    )
                 },
               )}
             </select>
-            <label htmlFor="boardSize" style={{margin: '10px'}}>Please enter a board size</label>
+            <label htmlFor="boardSize" style={{margin: '10px'}}>Please select a board size</label>
           </form>
         </div>
         <div
@@ -133,13 +141,13 @@ function App() {
             justifyContent: "center",
           }}
         >
-          <h4>The current player is {message}</h4>
+          <h4>{message}</h4>
         </div>
       </div>
       <div
         style={{
           width: "100vw",
-          height: "80vh",
+          height: "50vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -177,6 +185,15 @@ function App() {
             );
           })}
         </div>
+      </div>
+      <div style={{
+            width: "100vw",
+            height: "5vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}>
+      <h5>Play again?</h5>
       </div>
     </>
   );
