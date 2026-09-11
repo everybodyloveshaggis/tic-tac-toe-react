@@ -1,38 +1,114 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+.game-shell {
   align-items: center;
+  box-sizing: border-box;
+  display: flex;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  min-height: 100vh;
+  padding: 32px 20px;
+}
+
+.game {
+  background: #fffdf8;
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgb(36 29 20 / 18%);
+  max-width: 680px;
+  padding: clamp(24px, 5vw, 48px);
+  text-align: center;
+  width: 100%;
+}
+
+.eyebrow {
+  color: #a9512d;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  margin: 0 0 6px;
+  text-transform: uppercase;
+}
+
+h1 {
+  color: #2a2d3b;
+  font-size: clamp(2.25rem, 8vw, 3.75rem);
+  letter-spacing: -0.05em;
+  line-height: 1;
+  margin: 0;
+}
+
+.subtitle {
+  color: #656778;
+  margin: 12px 0 28px;
+}
+
+.game-controls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.game-controls label {
+  color: #3d4051;
+  font-weight: 700;
+}
+
+select,
+.game-controls button {
+  border: 1px solid #d4d1c9;
+  border-radius: 9px;
+  font: inherit;
+  padding: 9px 12px;
+}
+
+select { background: white; color: #2a2d3b; }
+
+.game-controls button {
+  background: #2a2d3b;
   color: white;
+  cursor: pointer;
+  font-weight: 700;
 }
 
-.App-link {
-  color: #61dafb;
+.game-controls button:hover { background: #44485c; }
+
+.game-status {
+  color: #3d4051;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 26px 0 16px;
+  min-height: 1.4em;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.game-status--complete { color: #a9512d; }
+
+.board {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(var(--board-size), minmax(0, 1fr));
+  margin: auto;
+  max-width: min(100%, 500px);
+}
+
+.cell {
+  aspect-ratio: 1;
+  background: #f0ede5;
+  border: 0;
+  border-radius: clamp(5px, 1vw, 10px);
+  color: #2a2d3b;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: clamp(1rem, calc(31px - var(--board-size) * 1.6px), 2.4rem);
+  font-weight: 800;
+  transition: background-color 120ms ease, transform 120ms ease;
+}
+
+.cell:not(:disabled):hover { background: #e4dfd3; transform: translateY(-1px); }
+.cell:focus-visible, select:focus-visible, .game-controls button:focus-visible { outline: 3px solid #e39860; outline-offset: 2px; }
+.cell:disabled { cursor: default; }
+.cell--x { color: #a9512d; }
+.cell--o { color: #267d86; }
+
+@media (max-width: 430px) {
+  .game-shell { padding: 0; }
+  .game { border-radius: 0; min-height: 100vh; }
 }

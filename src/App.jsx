@@ -1,201 +1,112 @@
 import { useState } from "react";
+import "./App.css";
 
-let isComplete = false;
-let size = [2,3,4,5,6,7,8,9]
-let boardSize =3
+const BOARD_SIZES = [3, 4, 5, 6, 7, 8, 9];
 
-// function refreshPage() {
-//   window.location.reload(false);
+const createBoard = (size) => Array.from({ length: size }, () => Array(size).fill(null));
 
-const generateBoard = (size) => {
-  const newBoard = [];
-  for (let i = 0; i < size; i++) {
-    newBoard.push([...Array(size)]);
-  }
-  return newBoard;
-};
+const getWinner = (board) => {
+  const size = board.length;
+  const lines = [
+    ...board,
+    ...Array.from({ length: size }, (_, column) => board.map((row) => row[column])),
+    Array.from({ length: size }, (_, index) => board[index][index]),
+    Array.from({ length: size }, (_, index) => board[index][size - 1 - index]),
+  ];
 
-const checkHorizontal = (board) => {
-  for (let row of board) {
-    const rowSet = new Set(row);
-    if (rowSet.size === 1 && !rowSet.has(undefined)) {
-      return true;
-    }
-  }
-};
-
-const rowsToColumns = (board) => {
-  const newBoard = [];
-  let column = 0;
-  while (column < board.length) {
-    const newRow = [];
-    for (let row = 0; row < board.length; row++) {
-      newRow.push(board[row][column]);
-    }
-    newBoard.push(newRow);
-    column++;
-  }
-  return newBoard;
-};
-
-const diagonalToRow = (board) => {
-  const newBoard = [[], []];
-  let increment = 0;
-  let decrement = board.length - 1;
-  while (increment < board.length) {
-    newBoard[0].push(board[increment][increment]);
-    newBoard[1].push(board[decrement][increment]);
-    increment++;
-    decrement--;
-  }
-  return newBoard;
-};
-
-const checkForWinner = (board) => {
-  //horizontal
-  if (checkHorizontal(board)) {
-    return true;
-  }
-  //vertical
-  if (checkHorizontal(rowsToColumns(board))) {
-    return true;
-  }
-  //diagonal
-  if (checkHorizontal(diagonalToRow(board))) {
-    return true;
-  }
+  return lines.find((line) => line[0] && line.every((cell) => cell === line[0]))?.[0] ?? null;
 };
 
 function App() {
-  const winnerMessage = " is the winner 🎉"
-  const [board, setBoard] = useState(generateBoard(3));
-  const [currPlayer, setCurrPlayer] = useState("x");
-  const [message, setMessage] = useState("x");
+  const [size, setSize] = useState(3);
+  const [board, setBoard] = useState(() => createBoard(3));
+  const [currentPlayer, setCurrentPlayer] = useState("X");
+  const [winner, setWinner] = useState(null);
+  const [isDraw, setIsDraw] = useState(false);
 
-  const handleClick = (row, col) => {
-    if (!isComplete) {
-      //Here I am checking to make sure that the user is
-      //clicking on a blank cell
-      //otherwise the click is not registered until they do.
-      if (!board[row][col]) {
-        board[row][col] = currPlayer;
-        setBoard([...board]);
-        if (checkForWinner(board)) {
-          isComplete = true;
-          console.log("User " + currPlayer + " wins!");
-          setMessage(currPlayer + winnerMessage)
-        }else{
-          setMessage(currPlayer === "x" ? "y" : "x");
-          setCurrPlayer(currPlayer === "x" ? "y" : "x");
-        }
-      }
+  const startNewGame = (nextSize = size) => {
+    setSize(nextSize);
+    setBoard(createBoard(nextSize));
+    setCurrentPlayer("X");
+    setWinner(null);
+    setIsDraw(false);
+  };
+
+  const handleSizeChange = (event) => startNewGame(Number(event.target.value));
+
+  const handleCellClick = (rowIndex, columnIndex) => {
+    if (winner || isDraw || board[rowIndex][columnIndex]) return;
+
+    const nextBoard = board.map((row, index) =>
+      index === rowIndex
+        ? row.map((cell, cellIndex) => (cellIndex === columnIndex ? currentPlayer : cell))
+        : row,
+    );
+    const nextWinner = getWinner(nextBoard);
+
+    setBoard(nextBoard);
+    if (nextWinner) {
+      setWinner(nextWinner);
+    } else if (nextBoard.flat().every(Boolean)) {
+      setIsDraw(true);
+    } else {
+      setCurrentPlayer((player) => (player === "X" ? "O" : "X"));
     }
   };
 
+  const status = winner ? `${winner} wins!` : isDraw ? "It's a draw!" : `${currentPlayer}'s turn`;
+
   return (
-    <>
-      <div
-        style={{
-          width: "100vw",
-          height: "10vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <h2>Tic-tac-toe</h2>
-      </div>
-      <div>
-        <div
-          style={{
-            width: "100vw",
-            height: "5vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <form action="post">
-            <select>
-              {
-                size.map((each, index) => 
-                {
-                  return (
-                  <option 
-                    value={index}
-                    >{each}
-                    </option>
-                    )
-                },
-              )}
-            </select>
-            <label htmlFor="boardSize" style={{margin: '10px'}}>Please select a board size</label>
-          </form>
+    <main className="game-shell">
+      <section className="game" aria-labelledby="game-title">
+        <header className="game-header">
+          <p className="eyebrow">Classic game</p>
+          <h1 id="game-title">Tic-Tac-Toe</h1>
+          <p className="subtitle">Get an entire row, column, or diagonal to win.</p>
+        </header>
+
+        <div className="game-controls">
+          <label htmlFor="board-size">Board size</label>
+          <select id="board-size" value={size} onChange={handleSizeChange}>
+            {BOARD_SIZES.map((boardSize) => (
+              <option key={boardSize} value={boardSize}>
+                {boardSize} × {boardSize}
+              </option>
+            ))}
+          </select>
+          <button type="button" onClick={() => startNewGame()}>
+            New game
+          </button>
         </div>
+
+        <p className={`game-status${winner || isDraw ? " game-status--complete" : ""}`} role="status" aria-live="polite">
+          {status}
+        </p>
+
         <div
-          style={{
-            width: "100vw",
-            height: "5vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+          className="board"
+          style={{ "--board-size": size }}
+          role="grid"
+          aria-label={`${size} by ${size} Tic-Tac-Toe board`}
         >
-          <h4>{message}</h4>
-        </div>
-      </div>
-      <div
-        style={{
-          width: "100vw",
-          height: "50vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div>
-          {board.map((row, r) => {
-            return (
-              <div
-                key={r}
-                style={{
-                  display: "flex",
-                  border: "1px red solid",
-                }}
+          {board.map((row, rowIndex) =>
+            row.map((cell, columnIndex) => (
+              <button
+                className={`cell${cell ? ` cell--${cell.toLowerCase()}` : ""}`}
+                type="button"
+                key={`${rowIndex}-${columnIndex}`}
+                role="gridcell"
+                aria-label={`Row ${rowIndex + 1}, column ${columnIndex + 1}${cell ? `: ${cell}` : ""}`}
+                disabled={Boolean(cell) || Boolean(winner) || isDraw}
+                onClick={() => handleCellClick(rowIndex, columnIndex)}
               >
-                {row.map((cell, c) => {
-                  return (
-                    <div
-                      key={c}
-                      onClick={() => handleClick(r, c)}
-                      style={{
-                        border: "1px red solid",
-                        height: "50px",
-                        width: "50px",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      {cell}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
+                {cell}
+              </button>
+            )),
+          )}
         </div>
-      </div>
-      <div style={{
-            width: "100vw",
-            height: "5vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}>
-      <h5>Play again?</h5>
-      </div>
-    </>
+      </section>
+    </main>
   );
 }
 
